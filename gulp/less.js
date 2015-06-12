@@ -36,9 +36,7 @@ module.exports = function(gulp) {
     gulp.task('less:demo', 'Builds the application stylesheets', ['less:lib'], function() {
         gulp.src(path.join(basedir, 'demo', 'src', 'less', 'demo.less'))
             .pipe(plumber())
-            .pipe(gulpif(!config.production, sourcemaps.init()))
             .pipe(less())
-            .pipe(gulpif(!config.production, sourcemaps.write()))
             .pipe(gulpif(config.production, minify({
                 compatibility: 'ie8'
             })))
@@ -47,9 +45,11 @@ module.exports = function(gulp) {
     });
 
     gulp.task('less:lib', 'Builds the application stylesheets', function() {
-        gulp.src(path.join(basedir, 'src', 'less', 'alloy.less'))
+        gulp.src(path.join(basedir, 'src', 'less', 'react-alloy.less'))
             .pipe(plumber())
+            .pipe(gulpif(!config.production, sourcemaps.init()))
             .pipe(less())
+            .pipe(gulpif(!config.production, sourcemaps.write()))
             .pipe(gulp.dest(path.join(basedir, 'lib', 'css')))
             .pipe(gulpif(!config.production, livereload()));
     });
@@ -59,8 +59,6 @@ module.exports = function(gulp) {
         if (!config.production) {
             gulp.watch(path.join(basedir, 'demo', 'src', 'less', '**', '*'), ['less:demo']);
             gulp.watch(path.join(basedir, 'src', 'less', '**', '*'), ['less:demo']);
-            // Start the livereload server
-            livereload.listen();
         }
     });
 

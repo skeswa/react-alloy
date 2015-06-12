@@ -17,5 +17,5 @@ require('./gulp/server')(gulp);
 
 /******************************** GULP TASKS *********************************/
 
-gulp.task('assets', 'Builds all non-javascript assets; when not in production, also watches for changes', ['less', 'images', 'html', 'vendor']);
+gulp.task('assets', 'Builds all non-javascript assets; when not in production, also watches for changes', ['less', 'images', 'html']);
 gulp.task('default', 'Builds all web application assets; when not in production, deploys server and watches for changes', ['assets', 'js', 'server']);

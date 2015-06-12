@@ -1,0 +1,54 @@
+.alloy-dropdown {
+    display: none;
+    padding: @dropdown-padding 0;
+    background: white;
+    box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.12), 0px 1px 4px rgba(0, 0, 0, 0.24);
+    border-radius: 2px;
+    opacity: 0.01;
+    transform: translateY(-20px);
+    transition: all @dropdown-animation-duration @base-animation-algo 100ms;
+    z-index: (@base-z-index + 1);
+
+    &.alloy-mounted {
+        display: block;
+    }
+
+    &.alloy-visible {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+
+    & > div {
+        width: 100%;
+        max-height: @dropdown-height;
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        .alloy-empty,
+        .alloy-not-found {
+            width: 100%;
+            font-weight: @dropdown-empty-font-weight;
+            font-size: @dropdown-empty-font-size;
+            letter-spacing: 0.25px;
+            color: @dropdown-empty-color;
+            text-align: center;
+            padding: 25px 0;
+        }
+
+        .alloy-dropdown-item {
+            cursor: pointer;
+            padding: 0px @dropdown-padding;
+            height: @dropdown-item-height;
+            white-space: nowrap;
+
+            &.alloy-highlighted {
+                background: fadeout(@primary-color, 95%);
+            }
+
+            & > div {
+                line-height: @dropdown-item-height;
+                font-size: @dropdown-item-font-size;
+            }
+        }
+    }
+}

@@ -1,0 +1,129 @@
+.alloy-autocomplete {
+    position: relative;
+    min-width: @autocomplete-default-width;
+    height: @autocomplete-height;
+
+    &.alloy-focused {
+        .alloy-search-box {
+            .alloy-focus-underline {
+                transform: scaleX(1);
+            }
+        }
+    }
+
+    &.alloy-has-query {
+        .alloy-search-box .alloy-hint {
+            opacity: 0;
+        }
+    }
+
+    &.alloy-has-value {
+        .alloy-search-box input {
+            color: @primary-color;
+        }
+    }
+
+    &.alloy-dropdown-open {
+        .alloy-dropdown {
+            display: block;
+        }
+    }
+
+    &.alloy-dropdown-visible {
+        .alloy-dropdown {
+            opacity: 1;
+            transform: translateY(0px);
+        }
+    }
+
+    &.alloy-loading {
+        .alloy-search-box .alloy-search-icon {
+            transform: scale(0);
+            opacity: 0;
+        }
+        .alloy-search-box .alloy-loading-indicator {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    // Alignments
+    &.alloy-align-left { text-align: left; }
+    &.alloy-align-center { text-align: center; }
+    &.alloy-align-right { text-align: right; }
+
+    .alloy-dropdown {
+        position: absolute;
+        top: ((-1 * @dropdown-padding) + 5);
+        left: (-1 * @dropdown-padding);
+        right: (-1 * @dropdown-padding);
+    }
+
+    .search {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: @autocomplete-height;
+        z-index: (@base-z-index + 2);
+
+        input {
+            display: block;
+            position: absolute;
+            text-align: inherit;
+            top: 0;
+            left: 0;
+            border: none;
+            outline: 0 none;
+            width: 100%;
+            height: 100%;
+            font-size: 16px;
+            color: @autocomplete-search-box-color;
+            background: transparent;
+        }
+
+        .hint {
+            top: 15px;
+            font-size: 16px;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            color: rgba(0, 0, 0, 0.3);
+            opacity: 1;
+            transition: all @autocomplete-search-box-hint-animation-duration @base-animation-algo 0ms;
+        }
+
+        .icon, .indicator {
+            position: absolute;
+            right: 0;
+            top: ((@autocomplete-height - @autocomplete-loading-indicator-size) / 2) - 1;
+            width: @autocomplete-loading-indicator-size;
+            height: @autocomplete-loading-indicator-size;
+            transition: all @base-animation-duration @base-animation-algo 0ms;
+        }
+        .icon {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .indicator {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .underline,
+        .focus-underline {
+            position: absolute;
+            width: 100%;
+            bottom: 8px;
+            margin: 0px;
+        }
+        .underline {
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .focus-underline {
+            border-bottom: 2px solid @primary-color;
+            transform: scaleX(0);
+            transition: all @autocomplete-underline-animation-duration @base-animation-algo 0ms;
+        }
+    }
+}

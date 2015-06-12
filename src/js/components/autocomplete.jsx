@@ -1,10 +1,13 @@
 'use strict';
 
 import React from 'react';
+
 // Utility to check variable types
 import {isFunction, isArray} from '../util/typechecker.js';
 // Internally defined icons
 import Icon from './icon';
+// Menu for showing results
+import {Dropdown, DropdownItem} from './dropdown';
 
 // Determines the text alignment of the component
 const ALIGNMENT = {
@@ -95,10 +98,8 @@ export default React.createClass({
 
     onSearchBoxBlurred() {
         this.setState({ focused: false }, () => {
-            if (!this.state.inKeyboardNavigation) {
-                // Hides the dropdown if the user isn't still using it
-                this.hideDropdown();
-            }
+            // Hides the dropdown after the box is unfocused
+            this.hideDropdown();
         });
     },
 
@@ -124,7 +125,9 @@ export default React.createClass({
             case 38:
                 // Up arrow
                 if (this.state.highlightedDropdownItemIndex > 0) {
-                    this.setState({ highlightedDropdownItemIndex: (this.state.highlightedDropdownItemIndex - 1) });
+                    this.setState({
+                        highlightedDropdownItemIndex: (this.state.highlightedDropdownItemIndex - 1)
+                    });
                 }
                 e.preventDefault();
                 return true;
@@ -141,25 +144,27 @@ export default React.createClass({
         }
     },
 
-    onDropdownItemsChanged(err, items) {
-        if (err) {
-            debugger;
-            // TODO had error handling logic here
+    onDropdownItemsChanged(items) {
+        if (!isArray(items)) {
+            throw new Error('Could not update drop down items since the "items" argument is not an array');
         } else {
-            if (!checker.isArray(items)) {
-                throw new Error('Could not update drop down items since the "items" argument is not an array');
-            } else {
-                // Update the items in the dropdown in end this request-response cycle
-                this.setState({
-                    dropdownItems: items,
-                    pendingRequestsCount: (
-                        this.state.pendingRequestsCount > 0 ?
-                            (this.state.pendingRequestsCount - 1) :
-                            0
-                    )
-                });
-            }
+            // Update the items in the dropdown in end this request-response cycle
+            this.setState({
+                dropdownItems: items,
+                pendingRequestsCount: (
+                    // Only decrement pending requests number if its natural
+                    (this.state.pendingRequestsCount > 0) ?
+                        (this.state.pendingRequestsCount - 1) :
+                        0
+                )
+            });
         }
+    },
+
+    onDropdownItemHovered(itemId, itemName) {
+    },
+
+    onDropdownItemClicked(itemId, itemName) {
     },
 
     onDropdownItemSelected(itemId, itemName) {
@@ -170,7 +175,7 @@ export default React.createClass({
             }
         }, () => {
             // Invoke the onChange listener if its a function
-            if (!checker.isFunction(this.props.onChange)) {
+            if (!isFunction(this.props.onChange)) {
                 throw new Error('Could not invoke the "onChange" property since it is not a function');
             } else {
                 this.props.onChange(this.state.currentlySelectedItem);
@@ -182,11 +187,11 @@ export default React.createClass({
 
     showDropdown() {
         // Only show the dropdown if we're not currently showing it already
-        if (!self.state.dropdownOpen &&
-            !self.state.dropdownVisible &&
-            !self.state.dropdownReady) {
+        if (!this.state.dropdownOpen &&
+            !this.state.dropdownVisible &&
+            !this.state.dropdownReady) {
             // Staggered state changes for animation's sake
-            self.setState(
+            this.setState(
                 { dropdownOpen: true },
                 () => {
                     setTimeout(() => {
@@ -206,11 +211,11 @@ export default React.createClass({
 
     hideDropdown() {
         // Only hide the dropdown if we're not currently hiding it already
-        if (self.state.dropdownOpen &&
-            self.state.dropdownVisible &&
-            self.state.dropdownReady) {
+        if (this.state.dropdownOpen &&
+            this.state.dropdownVisible &&
+            this.state.dropdownReady) {
             // Staggered state changes for animation's sake
-            self.setState(
+            this.setState(
                 { dropdownReady: false, dropdownVisible: false },
                 () => {
                     setTimeout(() => {
@@ -224,7 +229,7 @@ export default React.createClass({
     requestSearchResults() {
         let query = this.state.searchBoxValue;
         // Invoke the dataSource
-        if (checker.isFunction(this.props.dataSource)) {
+        if (isFunction(this.props.dataSource)) {
             this.props.dataSource(query, this.processSearchResults);
         } else {
             throw new Error('Could not invoke the "dataSource" property since it is not a function');
@@ -235,10 +240,10 @@ export default React.createClass({
         if (err) {
             // TODO add error visibility to component
             debugger;
-        } else if (!checker.isArray(results)) {
+        } else if (!isArray(results)) {
             throw new Error('Could not process "results" from "dataSource" callback since it is not an array');
         } else {
-            let scrubbedResults = result.filter((result) => {
+            let scrubbedResults = results.filter((result) => {
                 if (!result) {
                     return false;
                 } else if (result.id === undefined ||
@@ -261,16 +266,13 @@ export default React.createClass({
 
     /**************************** RENDER FUNCTIONS ***************************/
 
-    componentClassNames() {
+    autocompleteClassNames() {
         let classNames = ['alloy-autocomplete'];
         // Searchbox
         if (this.state.searchBoxFocused)            classNames.push('alloy-focused');
         if (this.state.pendingRequestsCount > 0)    classNames.push('alloy-loading');
         if (this.state.currentlySelectedItem)       classNames.push('alloy-has-value');
         if (this.state.searchBoxValue)              classNames.push('alloy-has-query');
-        // Dropdown
-        if (this.state.dropdownOpen)                classNames.push('alloy-dropdown-open');
-        if (this.state.dropdownVisible)             classNames.push('alloy-dropdown-visible');
         // Alignment
         switch (this.props.align) {
         case ALIGNMENT.CENTER:
@@ -285,46 +287,21 @@ export default React.createClass({
     },
 
     render() {
-        let self = this, dropdownContent;
-        if (this.state.dropdownItems.length > 0) {
-            dropdownContent = this.state.dropdownItems.map((item, index) => {
-                let itemClassName = 'alloy-dropdown-item';
-                if (index === this.state.highlightedDropdownItemIndex) {
-                    itemClassName = itemClassName + ' alloy-highlighted';
-                }
-
-                return (
-                    <div
-                        className={itemClassName}
-                        key={item.id}
-                        onClick={self.onDropdownItemSelected.bind(self, item.id, item.name)}>
-                        <div>{item.name}</div>
-                    </div>
-                );
-            });
-        } else {
-            if (!this.state.searchBoxValue || this.state.searchBoxValue.length < 1) {
-                dropdownContent = (
-                    <div className="alloy-dropdown-empty">
-                        Start typing above to search.
-                    </div>
-                );
-            } else {
-                dropdownContent = (
-                    <div className="alloy-dropdown-not-found">
-                        No results found.
-                    </div>
-                );
-            }
-        }
+        let dropdownItems = this.state.dropdownItems.map((item) => {
+            return (
+                <DropdownItem
+                    id={item.id}
+                    name={item.name}
+                    onHover={this.onDropdownItemHovered}
+                    onClick={this.onDropdownItemClicked} />
+            );
+        });
 
         return (
-            <div className={componentClassNames()}>
-                <div className="alloy-dropdown">
-                    <div className="alloy-dropdown-content">
-                        {dropdownContent}
-                    </div>
-                </div>
+            <div className={this.autocompleteClassNames()}>
+                <Dropdown mounted={this.state.dropdownOpen} visible={this.state.dropdownVisible}>
+                    {dropdownItems}
+                </Dropdown>
                 <div className="alloy-search-box">
                     <div className="alloy-hint">{this.props.hint}</div>
                     <Icon type="search" className="alloy-search-icon"/>

@@ -36,7 +36,7 @@ module.exports = function(gulp) {
             .pipe(plumber())
             .pipe(gulpif(!config.production, replace('</body>', '<script src="http://localhost:35729/livereload.js"></script></body>')))
             .pipe(gulpif(config.production, minify()))
-            .pipe(gulp.dest(path.join(basedir, 'demo', 'dist', 'index.html')))
+            .pipe(gulp.dest(path.join(basedir, 'demo', 'dist')))
             .pipe(gulpif(!config.production, livereload()));
     });
 

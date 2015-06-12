@@ -5,5 +5,5 @@ export const isArray = (x) => {
 
 export const isFunction = (x) => {
     if (!x) return false;
-    else return (x.constructor === Array);
+    else return (typeof x === 'function');
 };
