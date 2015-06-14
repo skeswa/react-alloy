@@ -56,28 +56,23 @@ module.exports = function(gulp) {
     });
 
     // Builds the demo application bundle
-    gulp.task('js:demo', 'Builds the demo js bundle', ['js:lib'], function() {
+    gulp.task('js:demo', 'Builds the demo js bundle', function() {
         var b = browserify({
             cache:          {},
-            debug:          true,
+            debug:          (!config.production),
             packageCache:   {},
             fullPaths:      true,
             extensions:     ['.js', '.jsx'],
             paths:          [
                 path.join(basedir, 'node_modules'),   // For node modules
-                path.join(basedir, 'demo', 'src', 'js') // The js source directory
+                path.join(basedir, 'demo', 'src', 'js'), // The js source directory
+                path.join(basedir, 'src', 'js') // The alloy lib source directory
             ]
         });
         // Browserify transforms
         b.transform(babelify);  // Babel handles ES6+ -> ES5 compilation and JSX compilation for react
         // Use watchify if not in production
         if (!config.production) {
-            try {
-                // Start the livereload server
-                livereload.listen();
-            } catch(err) {
-                // Swallow the error
-            }
             // Configure watchify
             b = watchify(b);
             b.on('update', function() {

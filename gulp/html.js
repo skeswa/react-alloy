@@ -34,12 +34,17 @@ module.exports = function(gulp) {
     gulp.task('html:compile', 'Builds the application HTML', function() {
         gulp.src(path.join(basedir, 'demo', 'src', 'index.html'))
             .pipe(plumber())
-            .pipe(gulpif(!config.production, replace('</body>', '<script src="http://localhost:35729/livereload.js"></script></body>')))
+            .pipe(gulpif(!config.production, replace('</body>', '\t<script src="http://localhost:35729/livereload.js"></script>\n</body>')))
             .pipe(gulpif(config.production, minify()))
-            .pipe(gulp.dest(path.join(basedir, 'demo', 'dist', 'index.html')))
+            .pipe(gulp.dest(path.join(basedir, 'demo', 'dist')))
             .pipe(gulpif(!config.production, livereload()));
     });
 
+    // Builds application HTML
+    gulp.task('html:watch', 'Watches the HTML', function() {
+        gulp.watch(path.join(basedir, 'demo', 'src', '*.html'), ['html:compile']);
+    });
+
     // Catch-all HTML task
-    gulp.task('html', 'Performs all HTML tasks', ['html:clean', 'html:compile']);
+    gulp.task('html', 'Performs all HTML tasks', ['html:clean', 'html:compile', 'html:watch']);
 };
