@@ -1,5 +1,7 @@
 import React from 'react';
 
+import {isFunction} from 'util/typechecker';
+
 export const DropdownItem = React.createClass({
     getDefaultProps() {
         return {
@@ -7,14 +9,35 @@ export const DropdownItem = React.createClass({
             name: 'Unknown',
             highlighted: false,
             onClick: (() => {}),
-            onHover: (() => {})
+            onMouseEnter: (() => {}),
+            onMouseLeave: (() => {})
         };
     },
 
     classNames() {
+        let classNames = ['alloy-dropdown-item'];
+        if (this.props.highlighted) classNames.push('alloy-highlighted');
+        return classNames.join(' ');
+    },
+
+    invoke(fn) {
+        if (fn) {
+            fn(this.props.id, this.props.name);
+        }
     },
 
     render() {
+        return (
+            <div
+                className={this.classNames()}
+                onClick={this.invoke.bind(this, this.props.onClick)}
+                onMouseEnter={this.invoke.bind(this, this.props.onMouseEnter)}
+                onMouseLeave={this.invoke.bind(this, this.props.onMouseLeave)}>
+                <div>
+                    {this.props.name}
+                </div>
+            </div>
+        );
     }
 });
 
@@ -37,7 +60,7 @@ export const Dropdown = React.createClass({
 
     render() {
         let content;
-        if (this.props.children > 0) {
+        if (this.props.children.length > 0) {
             content = this.props.children;
         } else {
             content = (

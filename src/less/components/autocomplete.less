@@ -1,49 +1,77 @@
 .alloy-autocomplete {
     position: relative;
+    font-family: @base-font-family;
     min-width: @autocomplete-default-width;
     height: @autocomplete-height;
 
+    &.alloy-has-label {
+        .alloy-search-box {
+            & > label {
+                display: block;
+            }
+
+            .alloy-hint {
+                opacity: 0;
+            }
+        }
+    }
+
+    &.alloy-has-hint {
+        .alloy-search-box .alloy-hint {
+            display: block;
+        }
+    }
+
+    &.alloy-has-query {
+        .alloy-search-box {
+            & > label {
+                color: fadein(@field-color, 20%);
+                transform: perspective(1px) scale(0.75) translate3d(0, (-1 * @autocomplete-label-offset - 8), 0);
+            }
+
+            div.alloy-hint {
+                opacity: 0;
+            }
+        }
+    }
+
     &.alloy-focused {
         .alloy-search-box {
+            & > label {
+                color: @primary-color;
+                transform: perspective(1px) scale(0.75) translate3d(0, (-1 * @autocomplete-label-offset - 6), 0);
+            }
+
+            .alloy-hint {
+                opacity: 1;
+            }
+
             .alloy-focus-underline {
                 transform: scaleX(1);
             }
         }
     }
 
-    &.alloy-has-query {
-        .alloy-search-box .alloy-hint {
-            opacity: 0;
-        }
-    }
-
     &.alloy-has-value {
-        .alloy-search-box input {
+        .alloy-search-box > input {
             color: @primary-color;
         }
     }
 
-    &.alloy-dropdown-open {
-        .alloy-dropdown {
-            display: block;
-        }
-    }
-
-    &.alloy-dropdown-visible {
-        .alloy-dropdown {
-            opacity: 1;
-            transform: translateY(0px);
-        }
-    }
-
     &.alloy-loading {
-        .alloy-search-box .alloy-search-icon {
-            transform: scale(0);
-            opacity: 0;
-        }
-        .alloy-search-box .alloy-loading-indicator {
-            transform: scale(1);
-            opacity: 1;
+        .alloy-search-box {
+            .alloy-search-icon {
+                transform: scale(0);
+                opacity: 0;
+            }
+            .alloy-loading-indicator {
+                transform: scale(1);
+                opacity: 1;
+            }
+            // Colors the icons in the search box
+            svg path {
+                fill: @primary-color;
+            }
         }
     }
 
@@ -52,14 +80,16 @@
     &.alloy-align-center { text-align: center; }
     &.alloy-align-right { text-align: right; }
 
+
     .alloy-dropdown {
         position: absolute;
-        top: ((-1 * @dropdown-padding) + 5);
+        top: (-1 * @dropdown-padding);
         left: (-1 * @dropdown-padding);
         right: (-1 * @dropdown-padding);
+        padding-top: (@autocomplete-height + @dropdown-padding);
     }
 
-    .search {
+    .alloy-search-box {
         position: absolute;
         top: 0;
         left: 0;
@@ -67,7 +97,7 @@
         height: @autocomplete-height;
         z-index: (@base-z-index + 2);
 
-        input {
+        & > input {
             display: block;
             position: absolute;
             text-align: inherit;
@@ -82,18 +112,36 @@
             background: transparent;
         }
 
-        .hint {
-            top: 15px;
-            font-size: 16px;
+        & > label {
+            display: none;
+            margin: 0;
+            padding: 0;
             position: absolute;
+            top: @autocomplete-label-offset;
+            left: 0;
+            max-width: 80%;
+            font-size: 16px;
+            color: @field-color;
+            opacity: 1;
+            transform: scale(1) translate3d(0, 0, 0);
+            transform-origin: left top 0px;
+            transition: all @autocomplete-search-box-hint-animation-duration @base-animation-algo 0ms;
+        }
+
+        .alloy-hint {
+            display: none;
+            position: absolute;
+            top: 18px;
             left: 0;
             width: 100%;
-            color: rgba(0, 0, 0, 0.3);
+            font-size: 16px;
+            color: @field-color;
             opacity: 1;
             transition: all @autocomplete-search-box-hint-animation-duration @base-animation-algo 0ms;
         }
 
-        .icon, .indicator {
+        .alloy-search-icon,
+        .alloy-loading-indicator {
             position: absolute;
             right: 0;
             top: ((@autocomplete-height - @autocomplete-loading-indicator-size) / 2) - 1;
@@ -101,29 +149,34 @@
             height: @autocomplete-loading-indicator-size;
             transition: all @base-animation-duration @base-animation-algo 0ms;
         }
-        .icon {
+        .alloy-search-icon {
             transform: scale(1);
             opacity: 1;
         }
-        .indicator {
+        .alloy-loading-indicator {
             transform: scale(0);
             opacity: 0;
         }
 
-        .underline,
-        .focus-underline {
+        .alloy-underline,
+        .alloy-focus-underline {
             position: absolute;
             width: 100%;
             bottom: 8px;
             margin: 0px;
         }
-        .underline {
-            border-bottom: 1px solid #E0E0E0;
+        .alloy-underline {
+            border-bottom: 1px solid #e0e0e0;
         }
-        .focus-underline {
+        .alloy-focus-underline {
             border-bottom: 2px solid @primary-color;
             transform: scaleX(0);
             transition: all @autocomplete-underline-animation-duration @base-animation-algo 0ms;
+        }
+
+        // Colors the icons in the search box
+        svg path {
+            fill: fadeout(@field-color, 10%);
         }
     }
 }

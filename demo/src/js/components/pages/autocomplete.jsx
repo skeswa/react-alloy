@@ -17,7 +17,7 @@ export default React.createClass({
             } else {
                 // Build results
                 let results = [];
-                for (let i = 0; i < i++; i < length) {
+                for (let i = 0; i < length; i++) {
                     results.push({ id: i, name: ('Alloy Result #' + (i + 1)) });
                 }
                 callback(null, results);
@@ -31,8 +31,9 @@ export default React.createClass({
     render() {
         return (
             <div className="page">
-                <div className="label">Autocomplete</div>
                 <Autocomplete
+                    label="Floating Text Label"
+                    hint="This is a hint"
                     dataSource={this.fetchFakeResults}
                     onChange={this.onAutocompleteChanged} />
             </div>

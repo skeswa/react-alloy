@@ -1,23 +1,37 @@
 .alloy-autocomplete {
   position: relative;
+  font-family: 'Roboto', sans-serif;
   min-width: 200px;
   height: 50px;
+}
+.alloy-autocomplete.alloy-has-label .alloy-search-box > label {
+  display: block;
+}
+.alloy-autocomplete.alloy-has-label .alloy-search-box .alloy-hint {
+  opacity: 0;
+}
+.alloy-autocomplete.alloy-has-hint .alloy-search-box .alloy-hint {
+  display: block;
+}
+.alloy-autocomplete.alloy-has-query .alloy-search-box > label {
+  color: rgba(0, 0, 0, 0.5);
+  transform: perspective(1px) scale(0.75) translate3d(0, -26px, 0);
+}
+.alloy-autocomplete.alloy-has-query .alloy-search-box div.alloy-hint {
+  opacity: 0;
+}
+.alloy-autocomplete.alloy-focused .alloy-search-box > label {
+  color: #00796b;
+  transform: perspective(1px) scale(0.75) translate3d(0, -24px, 0);
+}
+.alloy-autocomplete.alloy-focused .alloy-search-box .alloy-hint {
+  opacity: 1;
 }
 .alloy-autocomplete.alloy-focused .alloy-search-box .alloy-focus-underline {
   transform: scaleX(1);
 }
-.alloy-autocomplete.alloy-has-query .alloy-search-box .alloy-hint {
-  opacity: 0;
-}
-.alloy-autocomplete.alloy-has-value .alloy-search-box input {
+.alloy-autocomplete.alloy-has-value .alloy-search-box > input {
   color: #00796b;
-}
-.alloy-autocomplete.alloy-dropdown-open .alloy-dropdown {
-  display: block;
-}
-.alloy-autocomplete.alloy-dropdown-visible .alloy-dropdown {
-  opacity: 1;
-  transform: translateY(0px);
 }
 .alloy-autocomplete.alloy-loading .alloy-search-box .alloy-search-icon {
   transform: scale(0);
@@ -26,6 +40,9 @@
 .alloy-autocomplete.alloy-loading .alloy-search-box .alloy-loading-indicator {
   transform: scale(1);
   opacity: 1;
+}
+.alloy-autocomplete.alloy-loading .alloy-search-box svg path {
+  fill: #00796b;
 }
 .alloy-autocomplete.alloy-align-left {
   text-align: left;
@@ -38,11 +55,12 @@
 }
 .alloy-autocomplete .alloy-dropdown {
   position: absolute;
-  top: -10px;
+  top: -15px;
   left: -15px;
   right: -15px;
+  padding-top: 65px;
 }
-.alloy-autocomplete .search {
+.alloy-autocomplete .alloy-search-box {
   position: absolute;
   top: 0;
   left: 0;
@@ -50,7 +68,7 @@
   height: 50px;
   z-index: 102;
 }
-.alloy-autocomplete .search input {
+.alloy-autocomplete .alloy-search-box > input {
   display: block;
   position: absolute;
   text-align: inherit;
@@ -64,18 +82,34 @@
   color: #222222;
   background: transparent;
 }
-.alloy-autocomplete .search .hint {
-  top: 15px;
-  font-size: 16px;
+.alloy-autocomplete .alloy-search-box > label {
+  display: none;
+  margin: 0;
+  padding: 0;
   position: absolute;
+  top: 18px;
+  left: 0;
+  max-width: 80%;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.3);
+  opacity: 1;
+  transform: scale(1) translate3d(0, 0, 0);
+  transform-origin: left top 0px;
+  transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.alloy-autocomplete .alloy-search-box .alloy-hint {
+  display: none;
+  position: absolute;
+  top: 18px;
   left: 0;
   width: 100%;
+  font-size: 16px;
   color: rgba(0, 0, 0, 0.3);
   opacity: 1;
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
-.alloy-autocomplete .search .icon,
-.alloy-autocomplete .search .indicator {
+.alloy-autocomplete .alloy-search-box .alloy-search-icon,
+.alloy-autocomplete .alloy-search-box .alloy-loading-indicator {
   position: absolute;
   right: 0;
   top: 14px;
@@ -83,28 +117,31 @@
   height: 20px;
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
-.alloy-autocomplete .search .icon {
+.alloy-autocomplete .alloy-search-box .alloy-search-icon {
   transform: scale(1);
   opacity: 1;
 }
-.alloy-autocomplete .search .indicator {
+.alloy-autocomplete .alloy-search-box .alloy-loading-indicator {
   transform: scale(0);
   opacity: 0;
 }
-.alloy-autocomplete .search .underline,
-.alloy-autocomplete .search .focus-underline {
+.alloy-autocomplete .alloy-search-box .alloy-underline,
+.alloy-autocomplete .alloy-search-box .alloy-focus-underline {
   position: absolute;
   width: 100%;
   bottom: 8px;
   margin: 0px;
 }
-.alloy-autocomplete .search .underline {
-  border-bottom: 1px solid #E0E0E0;
+.alloy-autocomplete .alloy-search-box .alloy-underline {
+  border-bottom: 1px solid #e0e0e0;
 }
-.alloy-autocomplete .search .focus-underline {
+.alloy-autocomplete .alloy-search-box .alloy-focus-underline {
   border-bottom: 2px solid #00796b;
   transform: scaleX(0);
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.alloy-autocomplete .alloy-search-box svg path {
+  fill: rgba(0, 0, 0, 0.2);
 }
 .alloy-dropdown {
   display: none;
@@ -152,4 +189,7 @@
 .alloy-dropdown > div .alloy-dropdown-item > div {
   line-height: 36px;
   font-size: 15px;
+}
+body {
+  padding: 50px;
 }

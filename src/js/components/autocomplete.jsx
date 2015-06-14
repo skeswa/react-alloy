@@ -3,7 +3,7 @@
 import React from 'react';
 
 // Utility to check variable types
-import {isFunction, isArray} from '../util/typechecker.js';
+import {isFunction, isArray, isString, isEmpty} from '../util/typechecker.js';
 // Internally defined icons
 import Icon from './icon';
 // Menu for showing results
@@ -46,7 +46,7 @@ export default React.createClass({
             // The alignment of the text inside the dropdown
             align:              ALIGNMENT.LEFT,
             // The placeholder text for the text box
-            hint:               'Start typing to search',
+            hint:               null,
             // The label above the search box
             label:              null,
             // The datasource is the function responsible for filtering data
@@ -90,14 +90,14 @@ export default React.createClass({
     /**************************** EVENT LISTENERS ****************************/
 
     onSearchBoxFocused() {
-        this.setState({ focused: true }, () => {
+        this.setState({ searchBoxFocused: true }, () => {
             // Show the dropdown after the box is focused
             this.showDropdown();
         });
     },
 
     onSearchBoxBlurred() {
-        this.setState({ focused: false }, () => {
+        this.setState({ searchBoxFocused: false }, () => {
             // Hides the dropdown after the box is unfocused
             this.hideDropdown();
         });
@@ -161,7 +161,10 @@ export default React.createClass({
         }
     },
 
-    onDropdownItemHovered(itemId, itemName) {
+    onDropdownItemMouseEnter(itemId, itemName) {
+    },
+
+    onDropdownItemMouseLeave(itemId, itemName) {
     },
 
     onDropdownItemClicked(itemId, itemName) {
@@ -230,7 +233,11 @@ export default React.createClass({
         let query = this.state.searchBoxValue;
         // Invoke the dataSource
         if (isFunction(this.props.dataSource)) {
-            this.props.dataSource(query, this.processSearchResults);
+            this.setState({
+                pendingRequestsCount: (this.state.pendingRequestsCount + 1)
+            }, () => {
+                this.props.dataSource(query, this.processSearchResults);
+            });
         } else {
             throw new Error('Could not invoke the "dataSource" property since it is not a function');
         }
@@ -269,10 +276,14 @@ export default React.createClass({
     autocompleteClassNames() {
         let classNames = ['alloy-autocomplete'];
         // Searchbox
-        if (this.state.searchBoxFocused)            classNames.push('alloy-focused');
-        if (this.state.pendingRequestsCount > 0)    classNames.push('alloy-loading');
-        if (this.state.currentlySelectedItem)       classNames.push('alloy-has-value');
-        if (this.state.searchBoxValue)              classNames.push('alloy-has-query');
+        if (this.state.searchBoxFocused)          classNames.push('alloy-focused');
+        if (this.state.pendingRequestsCount > 0)  classNames.push('alloy-loading');
+        if (this.state.currentlySelectedItem)     classNames.push('alloy-has-value');
+        if (this.state.searchBoxValue)            classNames.push('alloy-has-query');
+        if (isString(this.props.label) &&
+            !isEmpty(this.props.label))           classNames.push('alloy-has-label');
+        if (isString(this.props.hint) &&
+            !isEmpty(this.props.hint))            classNames.push('alloy-has-hint');
         // Alignment
         switch (this.props.align) {
         case ALIGNMENT.CENTER:
@@ -287,12 +298,15 @@ export default React.createClass({
     },
 
     render() {
+        // The options in the dropdown
         let dropdownItems = this.state.dropdownItems.map((item) => {
             return (
                 <DropdownItem
                     id={item.id}
+                    key={item.id}
                     name={item.name}
-                    onHover={this.onDropdownItemHovered}
+                    onMouseEnter={this.onDropdownItemMouseEnter}
+                    onMouseLeave={this.onDropdownItemMouseLeave}
                     onClick={this.onDropdownItemClicked} />
             );
         });
@@ -303,9 +317,14 @@ export default React.createClass({
                     {dropdownItems}
                 </Dropdown>
                 <div className="alloy-search-box">
+                    <label>{this.props.label}</label>
                     <div className="alloy-hint">{this.props.hint}</div>
-                    <Icon type="search" className="alloy-search-icon"/>
-                    <Icon type="spinner" className="alloy-loading-indicator"/>
+                    <Icon
+                        type="search"
+                        className="alloy-search-icon"
+                        size={17}
+                        style={{ marginTop: '2px', marginRight: '-2px' }} />
+                    <Icon type="spinner" className="alloy-loading-indicator" size={20} />
                     <input type="text"
                         value={this.state.searchBoxValue}
                         onFocus={this.onSearchBoxFocused}
