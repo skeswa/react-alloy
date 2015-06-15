@@ -78,12 +78,12 @@ export default React.createClass({
             dropdownVisible:                false,  // Dropdown is visible but not yet ready for interaction
             dropdownReady:                  false,  // Dropdown is ready for user interaction
             dropdownItems:                  [],     // Items in the dropdown
-            highlightedDropdownItemIndex:   -1,     // Dropdown item currently selected by keyboard nav.
             // Search box state variables
             searchBoxFocused:               false,  // True when the user is focusing the search box
             searchBoxValue:                 '',     // The value of search box
-            // General state variables
-            currentlySelectedItem:          null    // The item that was most recently selected by the user
+            // Field value state variables
+            currentlySelectedItem:          null,   // The item that was most recently selected by the user
+            currentlyHighlightedItem:       null    // The id-name-pair of the item that is currently highlighted
         };
     },
 
@@ -93,6 +93,12 @@ export default React.createClass({
         this.setState({ searchBoxFocused: true }, () => {
             // Show the dropdown after the box is focused
             this.showDropdown();
+            // Disable the autoselection on tab
+            setTimeout(() => {
+                let el = React.findDOMNode(this.refs.searchBoxInput);
+                // Moves cursor to the end of the input
+                el.selectionStart = el.selectionEnd;
+            }, 10);
         });
     },
 
@@ -107,9 +113,7 @@ export default React.createClass({
         this.setState({
             searchBoxValue: e.target.value,
             // When the user starts searching again, they invalidate their last selection
-            currentlySelectedItem: null,
-            // Reset item selected by keyboard
-            highlightedDropdownItemIndex: -1
+            currentlySelectedItem: null
         }, () => {
             // Wait til the user finishes typing to perform a search
             clearTimeout(this.inputDelayTimeoutRef);
@@ -118,28 +122,33 @@ export default React.createClass({
     },
 
     onSearchBoxKeyDown(e) {
-        if (e.keyCode !== 38 /* Up arrow */ && e.keyCode !== 40 /* Down arrow */) {
-            return false;
+        if (e.keyCode !== 38 /* Up arrow */ &&
+            e.keyCode !== 40 /* Down arrow */ &&
+            e.keyCode !== 13 /* Enter key */) {
+            return;
         } else {
+            // Disable browser defaults
+            e.preventDefault();
+            // Figure out how to behave
             switch (e.keyCode) {
             case 38:
                 // Up arrow
-                if (this.state.highlightedDropdownItemIndex > 0) {
-                    this.setState({
-                        highlightedDropdownItemIndex: (this.state.highlightedDropdownItemIndex - 1)
-                    });
-                }
+                this.highlightPreviousItem();
                 e.preventDefault();
-                return true;
+                return;
             case 40:
                 // Down arrow
-                if (this.state.highlightedDropdownItemIndex < (this.state.dropdownItems.length - 1)) {
-                    this.setState({ highlightedDropdownItemIndex: (this.state.highlightedDropdownItemIndex + 1) });
-                }
+                this.highlightNextItem();
                 e.preventDefault();
-                return true;
-            default:
-                return false;
+                return;
+            case 13:
+                // Enter key
+                if (this.state.currentlyHighlightedItem) {
+                    // Enter effectively acts as a submit
+                    let {id, name} = this.state.currentlyHighlightedItem;
+                    this.onDropdownItemSelected(id, name, true);
+                }
+                return;
             }
         }
     },
@@ -162,21 +171,32 @@ export default React.createClass({
     },
 
     onDropdownItemMouseEnter(itemId, itemName) {
+        this.setState({
+            currentlyHighlightedItem: {
+                id:     itemId,
+                name:   itemName
+            }
+        });
     },
 
     onDropdownItemMouseLeave(itemId, itemName) {
+        this.setState({
+            currentlyHighlightedItem: null
+        });
     },
 
-    onDropdownItemClicked(itemId, itemName) {
-    },
-
-    onDropdownItemSelected(itemId, itemName) {
+    onDropdownItemSelected(itemId, itemName, throughKeyboard) {
         this.setState({
             currentlySelectedItem: {
                 id:     itemId,
                 name:   itemName
-            }
+            },
+            searchBoxValue: itemName
         }, () => {
+            // We have to blur the input if selected through keyboard
+            if (throughKeyboard) {
+                React.findDOMNode(this.refs.searchBoxInput).blur();
+            }
             // Invoke the onChange listener if its a function
             if (!isFunction(this.props.onChange)) {
                 throw new Error('Could not invoke the "onChange" property since it is not a function');
@@ -187,6 +207,47 @@ export default React.createClass({
     },
 
     /**************************** MEMBER FUNCTIONS ***************************/
+
+    highlightNextItem() {
+        if (!this.state.currentlyHighlightedItem) {
+            // Highlight the next dropdown item if nothing is selected yet
+            if (this.state.dropdownItems.length > 0) {
+                this.setState({ currentlyHighlightedItem: this.state.dropdownItems[0] });
+            }
+        } else {
+            let curr;
+            for (let i = 0; i < this.state.dropdownItems.length; i++) {
+                curr = this.state.dropdownItems[i];
+                // Perform check
+                if (this.state.currentlyHighlightedItem.id === curr.id) {
+                    // If there is no "next" do nothing
+                    if (i < this.state.dropdownItems.length - 1) {
+                        // Highlight the next item in state
+                        this.setState({ currentlyHighlightedItem: this.state.dropdownItems[i + 1] });
+                    }
+                }
+            }
+        }
+    },
+
+    highlightPreviousItem() {
+        if (this.state.currentlyHighlightedItem) {
+            // Only highlight the previous if there is one highlighted already
+            let prev, curr;
+            for (let i = 0; i < this.state.dropdownItems.length; i++) {
+                prev = curr;
+                curr = this.state.dropdownItems[i];
+                // Perform check
+                if (this.state.currentlyHighlightedItem.id === curr.id) {
+                    // If there is no prev, do nothing
+                    if (prev) {
+                        // Highlight the previous item in state
+                        this.setState({ currentlyHighlightedItem: prev });
+                    }
+                }
+            }
+        }
+    },
 
     showDropdown() {
         // Only show the dropdown if we're not currently showing it already
@@ -300,14 +361,19 @@ export default React.createClass({
     render() {
         // The options in the dropdown
         let dropdownItems = this.state.dropdownItems.map((item) => {
+            let isSelected      = this.state.currentlySelectedItem && (this.state.currentlySelectedItem.id === item.id);
+            let isHighlighted   = this.state.currentlyHighlightedItem && (this.state.currentlyHighlightedItem.id === item.id);
+
             return (
                 <DropdownItem
                     id={item.id}
                     key={item.id}
                     name={item.name}
+                    selected={isSelected}
+                    highlighted={isHighlighted}
                     onMouseEnter={this.onDropdownItemMouseEnter}
                     onMouseLeave={this.onDropdownItemMouseLeave}
-                    onClick={this.onDropdownItemClicked} />
+                    onClick={this.onDropdownItemSelected} />
             );
         });
 
@@ -326,10 +392,12 @@ export default React.createClass({
                         style={{ marginTop: '2px', marginRight: '-2px' }} />
                     <Icon type="spinner" className="alloy-loading-indicator" size={20} />
                     <input type="text"
+                        ref="searchBoxInput"
                         value={this.state.searchBoxValue}
                         onFocus={this.onSearchBoxFocused}
                         onBlur={this.onSearchBoxBlurred}
-                        onChange={this.onSearchBoxValueChanged} />
+                        onChange={this.onSearchBoxValueChanged}
+                        onKeyDown={this.onSearchBoxKeyDown} />
                     <div className="alloy-underline"/>
                     <div className="alloy-focus-underline"/>
                 </div>
