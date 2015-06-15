@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {isFunction} from 'util/typechecker';
+import {isString, isFunction} from 'util/typechecker';
 
 export const DropdownItem = React.createClass({
     getDefaultProps() {
@@ -48,6 +48,7 @@ export const DropdownItem = React.createClass({
 export const Dropdown = React.createClass({
     getDefaultProps() {
         return {
+            error:   null,
             mounted: false,
             visible: false
         };
@@ -64,7 +65,13 @@ export const Dropdown = React.createClass({
 
     render() {
         let content;
-        if (this.props.children.length > 0) {
+        if (isString(this.props.error)) {
+            content = (
+                <div className="alloy-error">
+                    {this.props.error}
+                </div>
+            );
+        } else if (this.props.children.length > 0) {
             content = this.props.children;
         } else {
             content = (
