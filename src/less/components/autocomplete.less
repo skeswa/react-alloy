@@ -75,6 +75,24 @@
         }
     }
 
+    &.alloy-has-error {
+        .alloy-search-box {
+            & > label {
+                color: @autocomplete-error-color;
+            }
+
+            .alloy-underline,
+            .alloy-focus-underline {
+                border-bottom-color: @autocomplete-error-color;
+            }
+
+            // Colors the icons in the search box
+            svg path {
+                fill: @autocomplete-error-color;
+            }
+        }
+    }
+
     // Alignments
     &.alloy-align-left { text-align: left; }
     &.alloy-align-center { text-align: center; }

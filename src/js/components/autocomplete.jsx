@@ -54,7 +54,9 @@ export default React.createClass({
             // The change listener - fired when the value of this field changes
             onChange:           () => {},
             // The value of this field
-            value:              null
+            value:              null,
+            // The most results to show in the dropdown
+            maxDropdownItems:   5
         };
     },
 
@@ -83,7 +85,9 @@ export default React.createClass({
             searchBoxValue:                 '',     // The value of search box
             // Field value state variables
             currentlySelectedItem:          null,   // The item that was most recently selected by the user
-            currentlyHighlightedItem:       null    // The id-name-pair of the item that is currently highlighted
+            currentlyHighlightedItem:       null,   // The id-name-pair of the item that is currently highlighted
+            // Error related state varibales
+            dataSourceError:                null
         };
     },
 
@@ -159,6 +163,7 @@ export default React.createClass({
         } else {
             // Update the items in the dropdown in end this request-response cycle
             this.setState({
+                dataSourceError: null,
                 dropdownItems: items,
                 pendingRequestsCount: (
                     // Only decrement pending requests number if its natural
@@ -306,8 +311,15 @@ export default React.createClass({
 
     processSearchResults(err, results) {
         if (err) {
-            // TODO add error visibility to component
-            debugger;
+            this.setState({
+                dataSourceError: err,
+                pendingRequestsCount: (
+                    // Only decrement pending requests number if its natural
+                    (this.state.pendingRequestsCount > 0) ?
+                        (this.state.pendingRequestsCount - 1) :
+                        0
+                )
+            });
         } else if (!isArray(results)) {
             throw new Error('Could not process "results" from "dataSource" callback since it is not an array');
         } else {
@@ -337,14 +349,15 @@ export default React.createClass({
     autocompleteClassNames() {
         let classNames = ['alloy-autocomplete'];
         // Searchbox
-        if (this.state.searchBoxFocused)          classNames.push('alloy-focused');
-        if (this.state.pendingRequestsCount > 0)  classNames.push('alloy-loading');
-        if (this.state.currentlySelectedItem)     classNames.push('alloy-has-value');
-        if (this.state.searchBoxValue)            classNames.push('alloy-has-query');
+        if (this.state.searchBoxFocused)            classNames.push('alloy-focused');
+        if (this.state.pendingRequestsCount > 0)    classNames.push('alloy-loading');
+        if (this.state.currentlySelectedItem)       classNames.push('alloy-has-value');
+        if (this.state.searchBoxValue)              classNames.push('alloy-has-query');
+        if (isString(this.state.dataSourceError))   classNames.push('alloy-has-error');
         if (isString(this.props.label) &&
-            !isEmpty(this.props.label))           classNames.push('alloy-has-label');
+            !isEmpty(this.props.label))             classNames.push('alloy-has-label');
         if (isString(this.props.hint) &&
-            !isEmpty(this.props.hint))            classNames.push('alloy-has-hint');
+            !isEmpty(this.props.hint))              classNames.push('alloy-has-hint');
         // Alignment
         switch (this.props.align) {
         case ALIGNMENT.CENTER:
@@ -360,26 +373,33 @@ export default React.createClass({
 
     render() {
         // The options in the dropdown
-        let dropdownItems = this.state.dropdownItems.map((item) => {
-            let isSelected      = this.state.currentlySelectedItem && (this.state.currentlySelectedItem.id === item.id);
-            let isHighlighted   = this.state.currentlyHighlightedItem && (this.state.currentlyHighlightedItem.id === item.id);
+        let dropdownItems = this.state.dropdownItems
+            .filter((_, i) => {
+                return i < this.props.maxDropdownItems;
+            })
+            .map((item) => {
+                let isSelected      = this.state.currentlySelectedItem && (this.state.currentlySelectedItem.id === item.id);
+                let isHighlighted   = this.state.currentlyHighlightedItem && (this.state.currentlyHighlightedItem.id === item.id);
 
-            return (
-                <DropdownItem
-                    id={item.id}
-                    key={item.id}
-                    name={item.name}
-                    selected={isSelected}
-                    highlighted={isHighlighted}
-                    onMouseEnter={this.onDropdownItemMouseEnter}
-                    onMouseLeave={this.onDropdownItemMouseLeave}
-                    onClick={this.onDropdownItemSelected} />
-            );
-        });
+                return (
+                    <DropdownItem
+                        id={item.id}
+                        key={item.id}
+                        name={item.name}
+                        selected={isSelected}
+                        highlighted={isHighlighted}
+                        onMouseEnter={this.onDropdownItemMouseEnter}
+                        onMouseLeave={this.onDropdownItemMouseLeave}
+                        onClick={this.onDropdownItemSelected} />
+                );
+            });
 
         return (
             <div className={this.autocompleteClassNames()}>
-                <Dropdown mounted={this.state.dropdownOpen} visible={this.state.dropdownVisible}>
+                <Dropdown
+                    error={this.state.dataSourceError}
+                    mounted={this.state.dropdownOpen}
+                    visible={this.state.dropdownVisible}>
                     {dropdownItems}
                 </Dropdown>
                 <div className="alloy-search-box">

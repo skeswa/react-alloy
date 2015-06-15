@@ -20,7 +20,6 @@
 
     & > div {
         width: 100%;
-        max-height: @dropdown-height;
         overflow-x: hidden;
         overflow-y: auto;
 
@@ -33,6 +32,17 @@
             color: @dropdown-empty-color;
             text-align: center;
             padding: 25px 0;
+        }
+
+        .alloy-error {
+            width: 100%;
+            font-weight: @dropdown-empty-font-weight;
+            font-size: @dropdown-empty-font-size;
+            letter-spacing: 0.25px;
+            color: @dropdown-error-color;
+            text-align: center;
+            padding: 25px 25%;
+            box-sizing: border-box;
         }
 
         .alloy-dropdown-item {
@@ -56,3 +66,4 @@
         }
     }
 }
+
