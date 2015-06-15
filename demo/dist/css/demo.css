@@ -183,8 +183,11 @@
   height: 36px;
   white-space: nowrap;
 }
+.alloy-dropdown > div .alloy-dropdown-item.alloy-selected {
+  color: #00796b;
+}
 .alloy-dropdown > div .alloy-dropdown-item.alloy-highlighted {
-  background: rgba(0, 121, 107, 0.05);
+  background: rgba(0, 121, 107, 0.2);
 }
 .alloy-dropdown > div .alloy-dropdown-item > div {
   line-height: 36px;

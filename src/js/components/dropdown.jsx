@@ -7,6 +7,7 @@ export const DropdownItem = React.createClass({
         return {
             id: 'Unknown',
             name: 'Unknown',
+            selected: false,
             highlighted: false,
             onClick: (() => {}),
             onMouseEnter: (() => {}),
@@ -16,7 +17,10 @@ export const DropdownItem = React.createClass({
 
     classNames() {
         let classNames = ['alloy-dropdown-item'];
+
+        if (this.props.selected) classNames.push('alloy-selected');
         if (this.props.highlighted) classNames.push('alloy-highlighted');
+
         return classNames.join(' ');
     },
 

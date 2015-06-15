@@ -41,8 +41,12 @@
             height: @dropdown-item-height;
             white-space: nowrap;
 
+            &.alloy-selected {
+                color: @primary-color;
+            }
+
             &.alloy-highlighted {
-                background: fadeout(@primary-color, 95%);
+                background: fadeout(@primary-color, 80%);
             }
 
             & > div {
