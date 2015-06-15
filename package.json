@@ -1,6 +1,6 @@
 {
   "name": "react-alloy",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "A component library for React.js that takes cues from Material Design.",
   "main": "./lib/js/react-alloy.js",
   "repository": {
