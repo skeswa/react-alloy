@@ -1,0 +1,16 @@
+{
+  "name": "react-alloy-demo",
+  "version": "1.0.0",
+  "description": "The demo for react-alloy.",
+  "repository": "https://github.com/skeswa/react-alloy.git",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sandile Keswa",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^0.13.3",
+    "react-router": "^0.13.3"
+  }
+}

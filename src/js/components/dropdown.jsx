@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {isString, isFunction} from 'util/typechecker';
+import {isString, isFunction} from '../util/typechecker';
 
 export const DropdownItem = React.createClass({
     getDefaultProps() {
