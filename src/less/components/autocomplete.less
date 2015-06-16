@@ -2,7 +2,7 @@
     position: relative;
     font-family: @base-font-family;
     min-width: @autocomplete-default-width;
-    height: @autocomplete-height;
+    height: @autocomplete-height + @autocomplete-search-box-error-height;
 
     &.alloy-has-label {
         .alloy-search-box {
@@ -26,7 +26,7 @@
         .alloy-search-box {
             & > label {
                 color: fadein(@field-color, 20%);
-                transform: perspective(1px) scale(0.75) translate3d(0, (-1 * @autocomplete-label-offset - 8), 0);
+                transform: perspective(1px) scale(0.75) translate3d(0, (-1 * @autocomplete-focused-label-offset), 0);
             }
 
             div.alloy-hint {
@@ -39,7 +39,7 @@
         .alloy-search-box {
             & > label {
                 color: @primary-color;
-                transform: perspective(1px) scale(0.75) translate3d(0, (-1 * @autocomplete-label-offset - 6), 0);
+                transform: perspective(1px) scale(0.75) translate3d(0, (-1 * @autocomplete-focused-label-offset), 0);
             }
 
             .alloy-hint {
@@ -49,13 +49,16 @@
             .alloy-focus-underline {
                 transform: scaleX(1);
             }
+
+            // Colors the icons in the search box
+            svg path {
+                fill: @primary-color;
+            }
         }
     }
 
-    &.alloy-has-value {
-        .alloy-search-box > input {
-            color: @primary-color;
-        }
+    &.alloy-has-value .alloy-search-box > input {
+        color: @primary-color;
     }
 
     &.alloy-loading {
@@ -68,28 +71,39 @@
                 transform: scale(1);
                 opacity: 1;
             }
-            // Colors the icons in the search box
-            svg path {
-                fill: @primary-color;
-            }
         }
     }
 
     &.alloy-has-error {
+        &.alloy-focused .alloy-search-box > label,
+        &.alloy-has-query .alloy-search-box > label {
+            color: @autocomplete-error-color;
+        }
+
         .alloy-search-box {
             & > label {
-                color: @autocomplete-error-color;
+                color: @field-color;
             }
 
             .alloy-underline,
             .alloy-focus-underline {
+                border-bottom-width: 2px;
                 border-bottom-color: @autocomplete-error-color;
+            }
+
+            .alloy-error {
+                opacity: 1;
+                transform: translateY(0px);
             }
 
             // Colors the icons in the search box
             svg path {
                 fill: @autocomplete-error-color;
             }
+        }
+
+        .alloy-dropdown {
+            padding-top: (@autocomplete-height + @dropdown-padding + @autocomplete-search-box-error-height);
         }
     }
 
@@ -104,7 +118,8 @@
         top: (-1 * @dropdown-padding);
         left: (-1 * @dropdown-padding);
         right: (-1 * @dropdown-padding);
-        padding-top: (@autocomplete-height + @dropdown-padding);
+        padding-top: (@autocomplete-height + @dropdown-padding + 5px);
+        transition: all @autocomplete-search-box-error-animation-duration @base-animation-algo 0ms;
     }
 
     .alloy-search-box {
@@ -128,6 +143,7 @@
             font-size: 16px;
             color: @autocomplete-search-box-color;
             background: transparent;
+            padding: 0;
         }
 
         & > label {
@@ -190,6 +206,18 @@
             border-bottom: 2px solid @primary-color;
             transform: scaleX(0);
             transition: all @autocomplete-underline-animation-duration @base-animation-algo 0ms;
+        }
+
+        .alloy-error {
+            position: absolute;
+            top: (@autocomplete-height - 2px); // 2px is to account for the font-size diff. between label and this
+            left: 0;
+            width: 100%;
+            font-size: 12px;
+            color: @autocomplete-error-color;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all @autocomplete-search-box-hint-animation-duration @base-animation-algo 0ms;
         }
 
         // Colors the icons in the search box

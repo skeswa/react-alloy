@@ -48,9 +48,9 @@ export const DropdownItem = React.createClass({
 export const Dropdown = React.createClass({
     getDefaultProps() {
         return {
-            error:   null,
-            mounted: false,
-            visible: false
+            showError:  false,
+            mounted:    false,
+            visible:    false
         };
     },
 
@@ -65,10 +65,10 @@ export const Dropdown = React.createClass({
 
     render() {
         let content;
-        if (isString(this.props.error)) {
+        if (this.props.showError) {
             content = (
-                <div className="alloy-error">
-                    {this.props.error}
+                <div className="alloy-empty">
+                    There was a problem while fetching information.
                 </div>
             );
         } else if (this.props.children.length > 0) {

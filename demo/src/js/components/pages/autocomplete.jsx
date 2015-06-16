@@ -32,6 +32,7 @@ export default React.createClass({
         return (
             <div className="page">
                 <Autocomplete
+                    required={true}
                     label="Floating Text Label"
                     hint="This is a hint"
                     dataSource={this.fetchFakeResults}

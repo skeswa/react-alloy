@@ -58,9 +58,11 @@ export default React.createClass({
             // The most results to show in the dropdown
             maxDropdownItems:   5,
             // The classNames string (as per the react standard)
-            className: '',
+            className:          '',
             // The styles map (as per the react standard)
-            style: {}
+            style:              {},
+            // Indicates that this field *mus* have a value to be valid
+            required:           false
         };
     },
 
@@ -91,7 +93,8 @@ export default React.createClass({
             currentlySelectedItem:          null,   // The item that was most recently selected by the user
             currentlyHighlightedItem:       null,   // The id-name-pair of the item that is currently highlighted
             // Error related state varibales
-            dataSourceError:                null
+            dataSourceError:                null,
+            internalError:                  null
         };
     },
 
@@ -200,7 +203,9 @@ export default React.createClass({
                 id:     itemId,
                 name:   itemName
             },
-            searchBoxValue: itemName
+            searchBoxValue: itemName,
+            // Kill the internal errors
+
         }, () => {
             // We have to blur the input if selected through keyboard
             if (throughKeyboard) {
@@ -357,7 +362,9 @@ export default React.createClass({
         if (this.state.pendingRequestsCount > 0)    classNames.push('alloy-loading');
         if (this.state.currentlySelectedItem)       classNames.push('alloy-has-value');
         if (this.state.searchBoxValue)              classNames.push('alloy-has-query');
-        if (isString(this.state.dataSourceError))   classNames.push('alloy-has-error');
+        if (isString(this.state.dataSourceError) ||
+            (this.props.required &&
+            !this.state.currentlySelectedItem))     classNames.push('alloy-has-error');
         if (isString(this.props.label) &&
             !isEmpty(this.props.label))             classNames.push('alloy-has-label');
         if (isString(this.props.hint) &&
@@ -403,10 +410,19 @@ export default React.createClass({
                 );
             });
 
+        // The error text
+        let errorText;
+        if (this.props.required && !this.state.currentlySelectedItem) {
+            errorText = 'This field is required';
+        }
+        if (isString(this.state.dataSourceError)) {
+            errorText = this.state.dataSourceError;
+        }
+
         return (
             <div className={this.autocompleteClassNames()} style={this.props.style || {}}>
                 <Dropdown
-                    error={this.state.dataSourceError}
+                    showError={!!this.state.dataSourceError}
                     mounted={this.state.dropdownOpen}
                     visible={this.state.dropdownVisible}>
                     {dropdownItems}
@@ -429,6 +445,7 @@ export default React.createClass({
                         onKeyDown={this.onSearchBoxKeyDown} />
                     <div className="alloy-underline"/>
                     <div className="alloy-focus-underline"/>
+                    <div className="alloy-error">{errorText}</div>
                 </div>
             </div>
         );
