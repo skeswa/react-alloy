@@ -42,7 +42,9 @@ module.exports = function(gulp) {
 
     // Builds application HTML
     gulp.task('html:watch', 'Watches the HTML', function() {
-        gulp.watch(path.join(basedir, 'demo', 'src', '*.html'), ['html:compile']);
+        if (!config.production) {
+            gulp.watch(path.join(basedir, 'demo', 'src', '*.html'), ['html:compile']);
+        }
     });
 
     // Catch-all HTML task

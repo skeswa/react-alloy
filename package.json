@@ -1,11 +1,11 @@
 {
   "name": "react-alloy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A component library for React.js that takes cues from Material Design.",
   "main": "./lib/js/react-alloy.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skeswa/alloy.git"
+    "url": "https://github.com/skeswa/react-alloy.git"
   },
   "directories": {
     "lib": "./lib",
@@ -13,6 +13,7 @@
     "docs": "./docs"
   },
   "scripts": {
+    "prepublish": "gulp --production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sandile Keswa",
@@ -32,11 +33,8 @@
     "gulp-minify-html": "^1.0.2",
     "gulp-plumber": "^1.0.0",
     "gulp-replace": "^0.5.3",
-    "gulp-sourcemaps": "^1.5.1",
     "gulp-uglify": "^1.1.0",
     "gulp-util": "^3.0.4",
-    "react": "^0.13.3",
-    "react-router": "^0.13.3",
     "rimraf": "^2.3.2",
     "underscore": "^1.8.3",
     "vinyl-buffer": "^1.0.0",
@@ -45,6 +43,6 @@
     "yargs": "^3.9.1"
   },
   "peer-dependencies": {
-    "react": "0.13+"
+    "react": "0.13.1+"
   }
 }

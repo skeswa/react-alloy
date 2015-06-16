@@ -3,7 +3,6 @@
 var path        = require('path');
 var rimraf      = require('rimraf');
 var less        = require('gulp-less');
-var sourcemaps  = require('gulp-sourcemaps');
 var minify      = require('gulp-minify-css');
 var livereload  = require('gulp-livereload');
 var plumber     = require('gulp-plumber');
@@ -45,11 +44,16 @@ module.exports = function(gulp) {
     });
 
     gulp.task('less:lib', 'Builds the application stylesheets', function() {
+        // Copy the less source to lib
+        gulp.src(path.join(basedir, 'src', 'less', '**', '*'))
+            .pipe(gulp.dest(path.join(basedir, 'lib', 'less')));
+        // compile less into CSS also
         gulp.src(path.join(basedir, 'src', 'less', 'react-alloy.less'))
             .pipe(plumber())
-            .pipe(gulpif(!config.production, sourcemaps.init()))
             .pipe(less())
-            .pipe(gulpif(!config.production, sourcemaps.write()))
+            .pipe(gulpif(config.production, minify({
+                compatibility: 'ie8'
+            })))
             .pipe(gulp.dest(path.join(basedir, 'lib', 'css')))
             .pipe(gulpif(!config.production, livereload()));
     });

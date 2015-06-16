@@ -56,7 +56,11 @@ export default React.createClass({
             // The value of this field
             value:              null,
             // The most results to show in the dropdown
-            maxDropdownItems:   5
+            maxDropdownItems:   5,
+            // The classNames string (as per the react standard)
+            className: '',
+            // The styles map (as per the react standard)
+            style: {}
         };
     },
 
@@ -362,11 +366,16 @@ export default React.createClass({
         switch (this.props.align) {
         case ALIGNMENT.CENTER:
             classNames.push('alloy-align-center');
+            break;
         case ALIGNMENT.RIGHT:
             classNames.push('alloy-align-right');
+            break;
         default:
             classNames.push('alloy-align-left');
+            break;
         }
+        // ClassNames Prop
+        classNames.join(this.props.className || '');
 
         return classNames.join(' ');
     },
@@ -395,7 +404,7 @@ export default React.createClass({
             });
 
         return (
-            <div className={this.autocompleteClassNames()}>
+            <div className={this.autocompleteClassNames()} style={this.props.style || {}}>
                 <Dropdown
                     error={this.state.dataSourceError}
                     mounted={this.state.dropdownOpen}

@@ -25,6 +25,9 @@ var package     = require('../package.json');
 // The project base directory
 var basedir         = path.join(__dirname, '..');
 
+// The react.js reference directory
+
+
 // Handles browserify errors
 function handleError(err) {
     gutil.log(gutil.colors.red('Browserify Error:'), err.message);
@@ -56,7 +59,7 @@ module.exports = function(gulp) {
     });
 
     // Builds the demo application bundle
-    gulp.task('js:demo', 'Builds the demo js bundle', function() {
+    gulp.task('js:demo', 'Builds the demo js bundle', ['js:lib'], function() {
         var b = browserify({
             cache:          {},
             debug:          (!config.production),
@@ -64,9 +67,8 @@ module.exports = function(gulp) {
             fullPaths:      true,
             extensions:     ['.js', '.jsx'],
             paths:          [
-                path.join(basedir, 'node_modules'),   // For node modules
-                path.join(basedir, 'demo', 'src', 'js'), // The js source directory
-                path.join(basedir, 'src', 'js') // The alloy lib source directory
+                path.join(basedir, 'src', 'node_modules'),  // For node modules
+                path.join(basedir, 'demo', 'src', 'js')     // The js source directory
             ]
         });
         // Browserify transforms
@@ -95,6 +97,13 @@ module.exports = function(gulp) {
             .pipe(gulp.dest(path.join(basedir, 'lib', 'js')))
     });
 
+    // Watches library js files
+    gulp.task('js:lib:watch', 'Watches alloy library scripts', function() {
+        if (!config.production) {
+            gulp.watch(path.join(basedir, 'src', 'js', '**', '*'), ['js:lib']);
+        }
+    });
+
     // Catch-all js task
-    gulp.task('js', 'Perform all JS tasks', ['js:clean', 'js:demo']);
+    gulp.task('js', 'Perform all JS tasks', ['js:clean', 'js:lib', 'js:demo', 'js:lib:watch']);
 };

@@ -32,8 +32,8 @@ module.exports = function(gulp) {
             app.get('/', function(_, res) {
                 res.sendFile(path.join(basedir, 'demo', 'dist', 'index.html'));
             });
-            gutil.log('Dev server is listening on port 3000');
-            app.listen(3000, done);
+            gutil.log('Dev server is listening on port 4000');
+            app.listen(4000, done);
         }
     });
 
